@@ -14,12 +14,51 @@ const jsonParser = bodyParser.json();
 
 //GET
 app.get('/posts', (req, res) => {
+  Post.find()
+    .then(posts => {
+      res.json({posts: posts.map(post => post.serialize())});
+    })
+    .catch(err => {
+      console.log(err);
+      res.status(500).json({ message: "Internal server error" });
+    });
+});
 
+//GET by id
+app.get('/posts/:id', (req,res) => {
+  Post.findById(req.params.id)
+    .then(post => {
+      res.json(post.serialize());
+    })
+    .catch(err => {
+      console.log(err);
+      res.status(500).json({ message: "Internal server error" });
+    });
 });
 
 //POST
-app.post('/posts', (req, res) => {
+app.post('/posts', jsonParser, (req, res) => {
+  const requiredFields = ["title", "content", "author"];
 
+  for (let i = 0; i < requiredFields.length; i++) {
+    const field = requiredFields[i];
+    if (!(field in req.body)) {
+      const message = `Missing \`${field}\` in request body`;
+      console.error(message);
+      return res.status(400).send(message);
+    }
+  }
+
+  Post.create({
+    title: req.body.title,
+    content: req.body.content,
+    author: req.body.author
+  })
+    .then(post => res.status(201).json(post.serialize()))
+    .catch(err => {
+      console.error(err);
+      res.status(500).json({ message: "Internal server error" });
+    });
 });
 
 //PUT
