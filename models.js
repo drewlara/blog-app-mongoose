@@ -2,15 +2,25 @@
 
 const mongoose = require("mongoose");
 
-//posts schema
-const postSchema = mongoose.Schema({
-  title: {type: String, required: true},
-  content: {type: String, required: true},
-  author: {
-    firstName: String,
-    lastName: String
-  },
-  created: String
+//author schema
+const authorSchema = mongoose.Schema({
+  firstName: 'string',
+  lastName: 'string',
+  userName: {
+    type: 'string',
+    unique: true
+  }
+});
+
+//comment schema
+const commentSchema = mongoose.Schema({ content: 'string'});
+
+//blogpost schema
+cost blogPostSchema = mongoose.Schema({
+  title: 'string',
+  content: 'string',
+  author: { type: mongoose.Schema.Types.ObjectId, ref: 'Author' },
+  comments: [commentSchema]
 });
 
 //authorName virtual
