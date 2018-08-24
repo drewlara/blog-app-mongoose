@@ -4,45 +4,47 @@ const mongoose = require("mongoose");
 
 //author schema
 const authorSchema = mongoose.Schema({
-  firstName: 'string',
-  lastName: 'string',
+  firstName: String,
+  lastName: String,
   userName: {
-    type: 'string',
+    type: String,
     unique: true
   }
 });
 
 //comment schema
-const commentSchema = mongoose.Schema({ content: 'string'});
+const commentSchema = mongoose.Schema({ content: String});
 
 //blogpost schema
-cost blogPostSchema = mongoose.Schema({
-  title: 'string',
-  content: 'string',
+const blogPostSchema = mongoose.Schema({
+  title: String,
+  content: String,
+  created: {type: Date, default: Date.now},
   author: { type: mongoose.Schema.Types.ObjectId, ref: 'Author' },
   comments: [commentSchema]
 });
 
+//author middleware
+blogPostSchema.pre('find', function(next){
+  this.populate('author');
+});
+
 //authorName virtual
-postSchema.virtual("authorName").get(function(){
+blogPostSchema.virtual("authorName").get(function(){
   return `${this.author.firstName} ${this.author.lastName}`;
 });
 
-//created virtual
-postSchema.virtual("createdDate").get(function(){
-  return `${Date.now()}`
-})
-
 //posts instance method
-postSchema.methods.serialize = function() {
+blogPostSchema.methods.serialize = function() {
   return {
     title: this.title,
     content: this.content,
     author: this.authorName,
-    created: this.createdDate
+    created: this.createdDate,
+    comments: this.comments
   }
 }
 
-const Post = mongoose.model("Post", postSchema);
+const Post = mongoose.model("Post", blogPostSchema);
 
 module.exports = { Post };
