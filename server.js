@@ -12,6 +12,10 @@ const { Post } = require("./models");
 const app = express();
 const jsonParser = bodyParser.json();
 
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + "/views/index.html");
+});
+
 //GET
 app.get('/posts', (req, res) => {
   Post.find()
