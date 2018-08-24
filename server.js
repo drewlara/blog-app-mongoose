@@ -62,13 +62,39 @@ app.post('/posts', jsonParser, (req, res) => {
 });
 
 //PUT
-app.put('/posts/:id', (req, res) => {
+app.put('/posts/:id', jsonParser, (req, res) => {
+  if (!(req.params.id && req.body.id && req.params.id === req.body.id)) {
+    const message =
+      `Request path id (${req.params.id}) and request body id ` +
+      `(${req.body.id}) must match`;
+    console.error(message);
+    return res.status(400).json({ message: message });
+  }
 
-})
+  const updateData = {}
+  const updateFields = ["title", "content", "author"];
+  updateFields.forEach(field => {
+    if (field in req.body) {
+      updateData[field] = req.body[field];
+    }
+  });
+
+  Post.findByIdAndUpdate(req.params.id, {$set: updateData})
+    .then(post => res.status(204).end())
+    .catch(err => {
+      console.log(err);
+      res.status(500).json({message: "Internal server error"});
+    });
+});
 
 //DELETE
 app.delete('/posts/:id', (req, res) => {
-
+  Post.findByIdAndRemove(req.params.id)
+    .then(post => res.status(204).end())
+    .catch(err => {
+      console.log(err);
+      res.status(500).json({message: "Internal server error"});
+    });
 });
 
 let server;
