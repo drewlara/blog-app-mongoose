@@ -13,7 +13,7 @@ const authorSchema = mongoose.Schema({
 });
 
 //comment schema
-const commentSchema = mongoose.Schema({ content: String});
+const commentSchema = mongoose.Schema({ content: String });
 
 //blogpost schema
 const blogPostSchema = mongoose.Schema({
@@ -27,6 +27,12 @@ const blogPostSchema = mongoose.Schema({
 //author middleware
 blogPostSchema.pre('find', function(next){
   this.populate('author');
+  next();
+});
+
+blogPostSchema.pre('findOne', function(next){
+  this.populate('author');
+  next();
 });
 
 //authorName virtual
@@ -40,11 +46,20 @@ blogPostSchema.methods.serialize = function() {
     title: this.title,
     content: this.content,
     author: this.authorName,
-    created: this.createdDate,
+    created: this.created,
     comments: this.comments
   }
 }
 
-const Post = mongoose.model("Post", blogPostSchema);
+authorSchema.methods.seralize = function() {
+  return {
+    firstName: this.firstName,
+    lastName: this.lastName,
+    userName: this.userName
+  }
+}
 
-module.exports = { Post };
+const Author = mongoose.model("Author", authorSchema);
+const Post = mongoose.model("BlogPost", blogPostSchema);
+
+module.exports = { Author, Post };
